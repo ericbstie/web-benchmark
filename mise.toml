@@ -1,0 +1,37 @@
+[tools]
+bun = "latest"
+node = "latest"
+podman = { version = "latest", rename_exe = "podman-remote" }
+
+[env]
+DATABASE_URL = "postgres://tweeter:tweeter@localhost:5432/tweeter"
+
+[tasks.database]
+run = """
+podman-remote run \
+    --rm \
+    --name tweeter-postgres \
+    -p 5432:5432 \
+    -e POSTGRES_USER=tweeter \
+    -e POSTGRES_PASSWORD=tweeter \
+    -d \
+    postgres
+"""
+
+[tasks.seed]
+run = "bun src/seed.ts"
+
+[tasks.app]
+depends = "install-dependencies"
+run = "bun --bun src/index.ts"
+
+[tasks.psql]
+hide = true
+run = "podman-remote exec -it tweeter-postgres psql -U tweeter"
+
+[tasks.install-dependencies]
+hide = true
+alias = ["i", "install"]
+sources = ["package.json", "bun.lock"]
+outputs = ["node_modules"]
+run = "bun install"
