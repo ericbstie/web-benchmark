@@ -15,11 +15,9 @@ Arjay mentions the following setup requirements in his video:
 - 500.000 seeded posts
 - 2.016.005 seeded likes
 
-Assuming you're already running a postgresql database with an empty table and the env variable `DATABASE_URL` set,
-you can run the following mise command to populate this data.
-
 ```
-mise run setup
+mise run database  # Runs postgres in a podman container
+mise run seed
 ```
 
 ## Running the API
@@ -27,6 +25,5 @@ mise run setup
 Mise takes care of installing bun, running `bun install` etc. Here's all you need:
 
 ```
-mise run dev  # Hot reloading enabled
-mise run app  # How production would be ran
+mise run app
 ```
