@@ -1,4 +1,4 @@
-# Social media backend for benchmarking
+# Tweeter
 
 An entry for Arjay McCandless' benchmarking video: https://www.youtube.com/watch?v=sQXFhh_PiG4
 
