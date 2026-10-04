@@ -1,4 +1,5 @@
 import { sql, type BunRequest } from "bun";
+import frontend from "./index.html";
 
 
 if (!import.meta.env.DATABASE_URL) {
@@ -17,6 +18,7 @@ const server = Bun.serve({
         "/posts/:id/like": {
             POST: req => likePost(req),
         },
+        "/": frontend,
     }
 });
 console.info("Server running on:", server.url.origin);

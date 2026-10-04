@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="theme-color" content="#f5f7f3" />
+		<title>Tweeter</title>
+		<style>
+			:root {
+				color-scheme: light;
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+				color: #202b27;
+				background: #f5f7f3;
+				font-synthesis: none;
+			}
+
+			* { box-sizing: border-box; }
+			body { margin: 0; min-width: 320px; }
+			button, input, textarea { font: inherit; }
+			button { cursor: pointer; }
+
+			.shell { width: min(100% - 32px, 960px); margin: 0 auto; }
+			header {
+				height: 76px;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				border-bottom: 1px solid #dfe5df;
+			}
+			.brand { display: flex; align-items: center; gap: 10px; color: #173f34; }
+			.brand-mark {
+				width: 30px;
+				height: 30px;
+				display: grid;
+				place-items: center;
+				border-radius: 10px 10px 10px 3px;
+				background: #d6ed82;
+				font: 700 16px Georgia, serif;
+			}
+			.brand-name { font: 700 21px Georgia, serif; }
+			.session { display: flex; align-items: center; gap: 9px; color: #68756f; font-size: 12px; }
+			.session input {
+				width: 150px;
+				padding: 8px 10px;
+				border: 1px solid #d8dfd8;
+				border-radius: 7px;
+				background: #fff;
+				color: #202b27;
+			}
+			main { display: grid; grid-template-columns: minmax(0, 1fr) 230px; align-items: start; gap: 28px; padding: 30px 0 60px; }
+			.feed-column { min-width: 0; }
+			.response-column { min-width: 0; padding-left: 20px; border-left: 1px solid #dfe5df; }
+			.response-column h2 { margin: 0 0 11px; }
+			.intro { margin-bottom: 21px; }
+			h1 { margin: 0 0 5px; font: 500 27px Georgia, serif; letter-spacing: 0; }
+			.subtitle { margin: 0; color: #748078; font-size: 13px; }
+			.composer {
+				padding: 17px;
+				border: 1px solid #dfe5df;
+				border-radius: 9px;
+				background: #fff;
+			}
+			textarea {
+				display: block;
+				width: 100%;
+				min-height: 78px;
+				resize: vertical;
+				border: 0;
+				outline: 0;
+				margin-bottom: 14px;
+				color: #202b27;
+				font-size: 15px;
+			}
+			textarea::placeholder { color: #9ba69f; }
+			.composer-bottom { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+			.hint, .count { color: #869189; font-size: 12px; }
+			.compose-actions { display: flex; align-items: center; gap: 12px; }
+			.primary, .quiet {
+				min-height: 34px;
+				padding: 0 13px;
+				border: 0;
+				border-radius: 6px;
+				font-weight: 650;
+				font-size: 12px;
+			}
+			.primary { background: #245b49; color: #fff; }
+			.primary:hover { background: #194b3b; }
+			.primary:disabled { opacity: .45; cursor: default; }
+			.quiet { background: #edf2ec; color: #3f594d; }
+			.feed-heading { display: flex; align-items: center; justify-content: space-between; margin: 29px 0 8px; }
+			h2 { margin: 0; font-size: 12px; letter-spacing: 0; text-transform: uppercase; color: #67756d; }
+			.feed-meta { display: flex; align-items: center; gap: 10px; }
+			.pagination { display: flex; align-items: center; gap: 2px; }
+			.pagination button { min-width: 30px; height: 32px; padding: 0 6px; border: 0; border-radius: 5px; background: transparent; color: #6c7971; font-size: 12px; }
+			.pagination button:hover:not(:disabled) { background: #e9eee8; color: #245b49; }
+			.pagination button[aria-current="page"] { background: #245b49; color: #fff; }
+			.pagination button:disabled { color: #a3ada6; cursor: default; }
+			#status { min-height: 18px; margin: 0; color: #79857d; font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; white-space: pre-wrap; }
+			#response-preview { max-height: 70vh; overflow: auto; margin: 12px 0 0; color: #274d3f; font: 12px/1.5 ui-monospace, monospace; overflow-wrap: anywhere; white-space: pre-wrap; }
+			.posts { border-top: 1px solid #dfe5df; }
+			.post { padding: 18px 2px 16px; border-bottom: 1px solid #dfe5df; }
+			.post-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+			.author { color: #274d3f; font-size: 13px; font-weight: 700; }
+			.post-date { color: #89948d; font-size: 12px; }
+			.post-body { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 15px; line-height: 1.55; }
+			.post-actions { display: flex; gap: 7px; margin-top: 12px; }
+			.post-actions button {
+				padding: 5px 8px;
+				border: 0;
+				border-radius: 5px;
+				background: transparent;
+				color: #6c7971;
+				font-size: 12px;
+			}
+			.post-actions button:hover { background: #e9eee8; color: #245b49; }
+			.post-actions button[aria-pressed="true"] { background: #e4efdd; color: #245b49; font-weight: 650; }
+			.empty { padding: 28px 0; color: #748078; font-size: 14px; }
+			@media (max-width: 700px) {
+				main { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+				.response-column { padding: 16px 0 0; border-top: 1px solid #dfe5df; border-left: 0; }
+			}
+			@media (max-width: 480px) {
+				.shell { width: min(100% - 24px, 660px); }
+				header { height: 66px; }
+				.session label { display: none; }
+				.session input { width: 126px; }
+				main { padding-top: 24px; }
+				.composer { padding: 14px; }
+				.hint { display: none; }
+			}
+		</style>
+	</head>
+	<body>
+		<div class="shell">
+			<header>
+				<div class="brand"><span class="brand-mark">t</span><span class="brand-name">tweeter</span></div>
+				<label class="session"><span>Auth</span><input id="auth" value="1" aria-label="Auth header value" /></label>
+			</header>
+			<main>
+				<section class="feed-column" aria-label="Feed">
+					<form class="composer" id="composer">
+						<textarea id="body" maxlength="280" placeholder="What's happening?" aria-label="Write a post" required></textarea>
+						<div class="composer-bottom">
+							<span class="hint">Keep it to 280 characters</span>
+							<div class="compose-actions"><span class="count" id="count">0 / 280</span><button class="primary" id="post-button" type="submit">Post</button></div>
+						</div>
+					</form>
+					<div class="feed-heading">
+						<nav class="pagination" id="pagination" aria-label="Feed pages"></nav>
+						<div class="feed-meta"><button class="quiet" id="refresh" type="button">Refresh</button></div>
+					</div>
+					<section class="posts" id="posts" aria-live="polite"></section>
+				</section>
+				<aside class="response-column" aria-labelledby="response-title">
+					<h2 id="response-title">Response</h2>
+					<p id="status" role="status"></p>
+					<pre id="response-preview" aria-label="JSON response"></pre>
+				</aside>
+			</main>
+		</div>
+		<script>
+			const endpoint = "/posts";
+			const feedPageSize = 50;
+			const pageButtonCount = 5;
+			const postsElement = document.querySelector("#posts");
+			const paginationElement = document.querySelector("#pagination");
+			const statusElement = document.querySelector("#status");
+			const responsePreviewElement = document.querySelector("#response-preview");
+			const authInput = document.querySelector("#auth");
+			const bodyInput = document.querySelector("#body");
+			const likedPostsByUser = new Map();
+			let currentPosts = [];
+			let currentPage = 1;
+			let lastPage = null;
+
+			async function request(path, options = {}) {
+				const response = await fetch(path, {
+					...options,
+					headers: {
+						...(options.body ? { "Content-Type": "application/json" } : {}),
+						...(options.auth ? { auth: authInput.value } : {}),
+						...options.headers,
+					},
+				});
+				const result = await response.json().catch(() => null);
+				responsePreviewElement.textContent = JSON.stringify(result, undefined, 4);
+				if (!response.ok) throw new Error(result?.message || `Request failed (${response.status})`);
+				return result;
+			}
+
+			function setStatus(message) { statusElement.textContent = message; }
+
+			function getLikedPosts(userId) {
+				if (!likedPostsByUser.has(userId)) likedPostsByUser.set(userId, new Set());
+				return likedPostsByUser.get(userId);
+			}
+
+			function isPostLiked(postId) {
+				return getLikedPosts(authInput.value.trim()).has(String(postId));
+			}
+
+			function formatDate(value) {
+				if (!value) return "";
+				const date = new Date(value);
+				return Number.isNaN(date.getTime()) ? "" : date.toLocaleString();
+			}
+
+			function renderPosts(posts) {
+				currentPosts = posts;
+				postsElement.replaceChildren();
+				if (!posts.length) {
+					postsElement.innerHTML = '<p class="empty">No posts yet. Start the conversation.</p>';
+					return;
+				}
+				for (const post of posts.slice(0, 50)) {
+					const article = document.createElement("article");
+					article.className = "post";
+					const head = document.createElement("div");
+					head.className = "post-head";
+					const author = document.createElement("span");
+					author.className = "author";
+					author.textContent = `user ${post.author_id ?? "unknown"}`;
+					const date = document.createElement("time");
+					date.className = "post-date";
+					date.textContent = formatDate(post.created_at);
+					head.append(author, date);
+					const content = document.createElement("p");
+					content.className = "post-body";
+					content.textContent = post.body ?? "";
+					const actions = document.createElement("div");
+					actions.className = "post-actions";
+					const liked = isPostLiked(post.id);
+					const likeButton = makeAction(liked ? "Liked" : "Like", () => likePost(post.id));
+					likeButton.setAttribute("aria-pressed", String(liked));
+					actions.append(
+						likeButton,
+						makeAction("Details", () => showDetails(post.id)),
+					);
+					article.append(head, content, actions);
+					postsElement.append(article);
+				}
+			}
+
+			function makeAction(label, action) {
+				const button = document.createElement("button");
+				button.type = "button";
+				button.textContent = label;
+				button.addEventListener("click", action);
+				return button;
+			}
+
+			function renderPagination() {
+				paginationElement.replaceChildren();
+				const firstPage = Math.floor((currentPage - 1) / pageButtonCount) * pageButtonCount + 1;
+				const finalVisiblePage = lastPage === null ? firstPage + pageButtonCount - 1 : Math.min(lastPage, firstPage + pageButtonCount - 1);
+				const previous = makeAction("‹", () => loadFeed(firstPage - pageButtonCount));
+				previous.setAttribute("aria-label", "Previous pages");
+				previous.disabled = firstPage === 1;
+				paginationElement.append(previous);
+				for (let page = firstPage; page <= finalVisiblePage; page += 1) {
+					const button = makeAction(String(page), () => loadFeed(page));
+					if (page === currentPage) button.setAttribute("aria-current", "page");
+					paginationElement.append(button);
+				}
+				const next = makeAction("›", () => loadFeed(firstPage + pageButtonCount));
+				next.setAttribute("aria-label", "Next pages");
+				next.disabled = lastPage !== null && firstPage + pageButtonCount > lastPage;
+				paginationElement.append(next);
+			}
+
+			async function loadFeed(page = currentPage) {
+				setStatus("Loading feed...");
+				if (page === 1) lastPage = null;
+				try {
+					const response = await request(`/feed?offset=${(page - 1) * feedPageSize}&limit=${feedPageSize}`);
+					const posts = Array.isArray(response) ? response : response ? [response] : [];
+					if (!posts.length && page > 1) {
+						lastPage = page - 1;
+						await loadFeed(lastPage);
+						return;
+					}
+					currentPage = page;
+					if (posts.length < feedPageSize) lastPage = page;
+						renderPosts(posts);
+					renderPagination();
+					setStatus(`${posts.length} posts${posts.length > 50 ? " · showing 50" : ""}`);
+				} catch (error) {
+					setStatus(error.message);
+				}
+			}
+
+			async function showDetails(id) {
+				setStatus(`Loading post ${id}...`);
+				try {
+					const result = await request(`${endpoint}/${encodeURIComponent(id)}`);
+					const post = Array.isArray(result) ? result[0] : result;
+					setStatus(post ? `Post ${post.id}: ${post.body}` : `Post ${id} not found`);
+				} catch (error) {
+					setStatus(error.message);
+				}
+			}
+
+			async function likePost(id) {
+				const userId = authInput.value.trim();
+				setStatus(`Liking post ${id}...`);
+				try {
+					const result = await request(`${endpoint}/${encodeURIComponent(id)}/like`, { method: "POST", auth: true });
+					const likedPosts = getLikedPosts(userId);
+					const liked = typeof result?.liked === "boolean" ? result.liked : !likedPosts.has(String(id));
+					if (liked) likedPosts.add(String(id));
+					else likedPosts.delete(String(id));
+					renderPosts(currentPosts);
+					setStatus(`${liked ? "Liked" : "Unliked"} post ${id}`);
+				} catch (error) {
+					setStatus(error.message);
+				}
+			}
+
+			authInput.addEventListener("input", () => renderPosts(currentPosts));
+			document.querySelector("#refresh").addEventListener("click", loadFeed);
+			document.querySelector("#composer").addEventListener("submit", async (event) => {
+				event.preventDefault();
+				const body = bodyInput.value.trim();
+				if (!body) return;
+				const button = document.querySelector("#post-button");
+				button.disabled = true;
+				setStatus("Publishing...");
+				try {
+					const result = await request(endpoint, {
+						method: "POST",
+						auth: true,
+						body: JSON.stringify({ author_id: 1, body }),
+					});
+					bodyInput.value = "";
+					document.querySelector("#count").textContent = "0 / 280";
+					setStatus(result?.id ? `Posted #${result.id}` : "Posted");
+					await loadFeed(1);
+				} catch (error) {
+					setStatus(error.message);
+				} finally {
+					button.disabled = false;
+				}
+			});
+			bodyInput.addEventListener("input", () => {
+				document.querySelector("#count").textContent = `${bodyInput.value.length} / 280`;
+			});
+
+			loadFeed();
+		</script>
+	</body>
+</html>
